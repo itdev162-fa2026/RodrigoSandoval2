@@ -15,6 +15,21 @@
 .header-content {
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-content .header-info h1 {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.header-content .header-info p {
+  margin: 10px 0 0 0;
+  font-size: 18px;
+  opacity: 0.9;
 }
 
 .app-header h1 {
