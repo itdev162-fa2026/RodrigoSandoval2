@@ -29,3 +29,28 @@ export const getProductById = async (id) => {
     throw error;
   }
 };
+
+export const searchProducts = async (searchTerm) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/products/search?term=${encodeURIComponent(searchTerm)}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to search products');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error searching products:', error);
+    // Fallback to client-side filtering if search endpoint doesn't exist
+    try {
+      const allProducts = await getProducts();
+      return allProducts.filter(product => 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    } catch (fallbackError) {
+      console.error('Error in fallback search:', fallbackError);
+      throw error;
+    }
+  }
+};

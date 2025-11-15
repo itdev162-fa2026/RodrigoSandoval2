@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '../services/api';
+import { useCart } from '../App';
 import './ProductDetail.css';
 
 function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -27,6 +31,37 @@ function ProductDetail() {
 
     fetchProduct();
   }, [id]);
+
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (value >= 1 && value <= product.currentStock) {
+      setQuantity(value);
+    }
+  };
+
+  const incrementQuantity = () => {
+    if (quantity < product.currentStock) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    setIsAdding(true);
+    try {
+      addToCart(product, quantity);
+      // You could add a success message here
+      setTimeout(() => setIsAdding(false), 500);
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      setIsAdding(false);
+    }
+  };
 
   if (loading) {
     return <div className="loading">Loading product...</div>;
@@ -82,6 +117,49 @@ function ProductDetail() {
             <h2>Description</h2>
             <p>{product.description}</p>
           </div>
+
+          {product.currentStock > 0 && (
+            <div className="product-detail-actions">
+              <div className="quantity-selector">
+                <label htmlFor="quantity">Quantity:</label>
+                <div className="quantity-controls">
+                  <button 
+                    type="button"
+                    onClick={decrementQuantity}
+                    disabled={quantity <= 1}
+                    className="quantity-btn"
+                  >
+                    -
+                  </button>
+                  <input
+                    id="quantity"
+                    type="number"
+                    min="1"
+                    max={product.currentStock}
+                    value={quantity}
+                    onChange={handleQuantityChange}
+                    className="quantity-input"
+                  />
+                  <button 
+                    type="button"
+                    onClick={incrementQuantity}
+                    disabled={quantity >= product.currentStock}
+                    className="quantity-btn"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <button 
+                onClick={handleAddToCart}
+                disabled={isAdding}
+                className="add-to-cart-btn"
+              >
+                {isAdding ? 'Adding...' : 'Add to Cart'}
+              </button>
+            </div>
+          )}
 
           <div className="product-detail-meta">
             <p><strong>Product ID:</strong> {product.id}</p>
