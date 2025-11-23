@@ -19,9 +19,9 @@ namespace Persistence
       DbPath = System.IO.Path.Join(path, "Blogbox.db");
     }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        optionsBuilder.UseSqlite("Data Source=blogbox.db");
+      options.UseSqlite($"Data Source={DbPath}");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
