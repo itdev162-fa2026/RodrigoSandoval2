@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import CartItem from "./CartItem";
 import "./Cart.css";
 
@@ -43,10 +44,9 @@ function Cart({ items, total, onUpdateQuantity, onRemove, onClear, onClose }) {
                   Clear Cart
                 </button>
 
-                <button className="checkout-button" disabled>
-                  Proceed to Checkout
-                  <span className="checkout-note">(Available in Activity 9)</span>
-                </button>
+                <Link to="/checkout" className="checkout-button-link" onClick={onClose}>
+                  <button className="checkout-button">Proceed to Checkout</button>
+                </Link>
               </div>
             </>
           )}
