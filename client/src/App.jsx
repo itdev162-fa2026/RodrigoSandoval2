@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ProductList from './components/ProductList';
 import ProductDetail from './components/ProductDetail';
+import Checkout from './components/Checkout/Checkout';
+import OrderSuccess from './components/Checkout/OrderSuccess';
 import CartButton from './components/Cart/CartButton';
 import Cart from './components/Cart/Cart';
 import './App.css';
@@ -117,6 +119,17 @@ function App() {
               path="/products/:id"
               element={<ProductDetail addToCart={addToCart} />}
             />
+            <Route
+              path="/checkout"
+              element={
+                <Checkout
+                  cartItems={cartItems}
+                  cartTotal={getCartTotal()}
+                  clearCart={clearCart}
+                />
+              }
+            />
+            <Route path="/order/success" element={<OrderSuccess />} />
           </Routes>
         </main>
 
