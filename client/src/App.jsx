@@ -1,69 +1,72 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState, useEffect, useContext, createContext } from 'react';
+import { useState, useEffect } from 'react';
 import ProductList from './components/ProductList';
 import ProductDetail from './components/ProductDetail';
 import CartButton from './components/Cart/CartButton';
 import Cart from './components/Cart/Cart';
 import './App.css';
 
-// Create Cart Context
-const CartContext = createContext();
-
-// Custom hook to use cart context
-// eslint-disable-next-line react-refresh/only-export-components
-export const useCart = () => {
-  return useContext(CartContext);
-};
-
 function App() {
+  // Cart state
   const [cartItems, setCartItems] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [showCart, setShowCart] = useState(false);
 
-  // Load cart from localStorage on component mount
+  // Load cart from localStorage on mount
   useEffect(() => {
-    const storedCart = localStorage.getItem('cartItems');
-    if (storedCart) {
-      setCartItems(JSON.parse(storedCart));
+    try {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
+      }
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error);
     }
   }, []);
 
-  // Save cart to localStorage whenever cartItems changes
+  // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    try {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+    } catch (error) {
+      console.error('Error saving cart to localStorage:', error);
+    }
   }, [cartItems]);
 
-  // Add item to cart
-  const addToCart = (product, quantity = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
+  // Add item to cart or update quantity if already exists
+  const addToCart = (product, quantity) => {
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find(
+        (item) => item.product.id === product.id
+      );
+
       if (existingItem) {
-        // Update quantity if item already exists
-        return prevItems.map(item =>
-          item.id === product.id
+        // Update quantity of existing item
+        return prevItems.map((item) =>
+          item.product.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       } else {
         // Add new item
-        return [...prevItems, { ...product, quantity }];
+        return [...prevItems, { product, quantity }];
       }
     });
   };
 
   // Remove item from cart
   const removeFromCart = (productId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.product.id !== productId)
+    );
   };
 
-  // Update item quantity
+  // Update quantity of item in cart
   const updateQuantity = (productId, newQuantity) => {
-    if (newQuantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === productId
+    if (newQuantity < 1) return; // Don't allow quantity less than 1
+
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.product.id === productId
           ? { ...item, quantity: newQuantity }
           : item
       )
@@ -75,57 +78,65 @@ function App() {
     setCartItems([]);
   };
 
-  // Get total items count
-  const getTotalItems = () => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  // Calculate cart total (handles sale prices)
+  const getCartTotal = () => {
+    return cartItems.reduce((total, item) => {
+      const price = item.product.isOnSale
+        ? item.product.salePrice
+        : item.product.price;
+      return total + price * item.quantity;
+    }, 0);
   };
 
-  // Get total price
-  const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const cartValue = {
-    cartItems,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    getTotalItems,
-    getTotalPrice,
-    isCartOpen,
-    setIsCartOpen
+  // Get total number of items in cart
+  const getCartItemCount = () => {
+    return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
   return (
-    <CartContext.Provider value={cartValue}>
-      <Router>
-        <div className="app">
-          <header className="app-header">
-            <div className="header-content">
-              <div className="header-info">
-                <h1>Blogbox Store</h1>
-                <p>Your E-Commerce Solution</p>
-              </div>
-              <CartButton />
+    <Router>
+      <div className="app">
+        <header className="app-header">
+          <div className="header-content">
+            <div>
+              <h1>Blogbox Store</h1>
+              <p>Your E-Commerce Solution</p>
             </div>
-          </header>
+            <CartButton
+              itemCount={getCartItemCount()}
+              total={getCartTotal()}
+              onClick={() => setShowCart(true)}
+            />
+          </div>
+        </header>
 
-          <main className="app-main">
-            <Routes>
-              <Route path="/" element={<ProductList />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-            </Routes>
-          </main>
+        <main className="app-main">
+          <Routes>
+            <Route path="/" element={<ProductList />} />
+            <Route
+              path="/products/:id"
+              element={<ProductDetail addToCart={addToCart} />}
+            />
+          </Routes>
+        </main>
 
-          <footer className="app-footer">
-            <p>&copy; 2024 Blogbox Store. Built with React & ASP.NET Core</p>
-          </footer>
+        <footer className="app-footer">
+          <p>&copy; 2024 Blogbox Store. Built with React & ASP.NET Core</p>
+        </footer>
 
-          <Cart />
-        </div>
-      </Router>
-    </CartContext.Provider>
+        {showCart && (
+          <Cart
+            items={cartItems}
+            total={getCartTotal()}
+            onUpdateQuantity={updateQuantity}
+            onRemove={removeFromCart}
+            onClear={clearCart}
+            onClose={() => setShowCart(false)}
+          />
+        )}
+      </div>
+    </Router>
   );
 }
+
 export default App;

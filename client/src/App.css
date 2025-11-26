@@ -18,18 +18,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-.header-content .header-info h1 {
-  margin: 0;
-  font-size: 42px;
-  font-weight: 700;
-}
-
-.header-content .header-info p {
-  margin: 10px 0 0 0;
-  font-size: 18px;
-  opacity: 0.9;
+.header-content > div:first-child {
+  flex: 1;
 }
 
 .app-header h1 {
@@ -60,4 +54,18 @@
 .app-footer p {
   margin: 0;
   opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    justify-content: center;
+  }
+
+  .app-header h1 {
+    font-size: 32px;
+  }
+
+  .app-header p {
+    font-size: 16px;
+  }
 }

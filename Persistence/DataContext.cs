@@ -9,10 +9,9 @@ namespace Persistence
     public DbSet<Product> Products { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
-
     public string DbPath { get; }
 
-        public DataContext()
+    public DataContext()
     {
       var folder = Environment.SpecialFolder.LocalApplicationData;
       var path = Environment.GetFolderPath(folder);
@@ -26,19 +25,14 @@ namespace Persistence
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+      base.OnModelCreating(modelBuilder);
 
-        // Configure Order-OrderItem relationship
-        modelBuilder.Entity<Order>()
-            .HasMany(o => o.OrderItems)
-            .WithOne(oi => oi.Order)
-            .HasForeignKey(oi => oi.OrderId)
-            .OnDelete(DeleteBehavior.Cascade);
+      // Configure Order-OrderItem relationship
+      modelBuilder.Entity<Order>()
+        .HasMany(o => o.OrderItems)
+        .WithOne(oi => oi.Order)
+        .HasForeignKey(oi => oi.OrderId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
-
-
-
-
-
   }
 }
