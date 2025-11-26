@@ -1,21 +1,16 @@
-import { useCart } from '../../App';
-import './CartButton.css';
+import "./CartButton.css";
 
-const CartButton = () => {
-  const { getTotalItems, setIsCartOpen } = useCart();
-  const itemCount = getTotalItems();
-
+function CartButton({ itemCount, total, onClick }) {
   return (
-    <button 
-      className="cart-button"
-      onClick={() => setIsCartOpen(true)}
-    >
-      🛒 Cart
-      {itemCount > 0 && (
-        <span className="cart-badge">{itemCount}</span>
-      )}
+    <button className="cart-button" onClick={onClick}>
+      <span className="cart-icon">🛒</span>
+      {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
+      <div className="cart-button-info">
+        <span className="cart-button-label">Cart</span>
+        <span className="cart-button-total">${total.toFixed(2)}</span>
+      </div>
     </button>
   );
-};
+}
 
 export default CartButton;

@@ -1,72 +1,53 @@
-import { useCart } from '../../App';
-import './CartItem.css';
+import "./CartItem.css";
 
-const CartItem = ({ item }) => {
-  const { updateQuantity, removeFromCart } = useCart();
+function CartItem({ item, onUpdateQuantity, onRemove }) {
+  const { product, quantity } = item;
+  const price = product.isOnSale ? product.salePrice : product.price;
+  const subtotal = price * quantity;
 
-  const handleQuantityChange = (e) => {
-    const newQuantity = parseInt(e.target.value);
-    updateQuantity(item.id, newQuantity);
+  const handleIncrement = () => {
+    onUpdateQuantity(product.id, quantity + 1);
   };
 
-  const incrementQuantity = () => {
-    updateQuantity(item.id, item.quantity + 1);
-  };
-
-  const decrementQuantity = () => {
-    if (item.quantity > 1) {
-      updateQuantity(item.id, item.quantity - 1);
+  const handleDecrement = () => {
+    if (quantity > 1) {
+      onUpdateQuantity(product.id, quantity - 1);
     }
-  };
-
-  const handleRemove = () => {
-    removeFromCart(item.id);
   };
 
   return (
     <div className="cart-item">
-      <div className="cart-item-info">
-        <h4 className="cart-item-title">{item.name}</h4>
-        <p className="cart-item-price">${item.price.toFixed(2)}</p>
+      <img
+        src={product.imageUrl || "https://placehold.co/80x80/e0e0e0/666?text=No+Image"}
+        alt={product.name}
+        className="cart-item-image"
+      />
+      <div className="cart-item-details">
+        <h3 className="cart-item-name">{product.name}</h3>
+        <p className="cart-item-price">
+          ${price.toFixed(2)}
+          {product.isOnSale && (
+            <span className="cart-item-sale"> (On Sale!)</span>
+          )}
+        </p>
       </div>
-      
       <div className="cart-item-controls">
         <div className="quantity-controls">
-          <button 
-            className="quantity-btn"
-            onClick={decrementQuantity}
-            disabled={item.quantity <= 1}
-          >
-            -
+          <button onClick={handleDecrement} className="quantity-button">
+            −
           </button>
-          <input
-            type="number"
-            min="1"
-            value={item.quantity}
-            onChange={handleQuantityChange}
-            className="quantity-input"
-          />
-          <button 
-            className="quantity-btn"
-            onClick={incrementQuantity}
-          >
+          <span className="quantity-display">{quantity}</span>
+          <button onClick={handleIncrement} className="quantity-button">
             +
           </button>
         </div>
-        
-        <button 
-          className="remove-btn"
-          onClick={handleRemove}
-        >
-          Remove
-        </button>
+        <p className="cart-item-subtotal">${subtotal.toFixed(2)}</p>
       </div>
-      
-      <div className="cart-item-total">
-        ${(item.price * item.quantity).toFixed(2)}
-      </div>
+      <button onClick={() => onRemove(product.id)} className="remove-button">
+        ✕
+      </button>
     </div>
   );
-};
+}
 
 export default CartItem;

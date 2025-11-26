@@ -1,86 +1,52 @@
-import { useCart } from '../../App';
-import CartItem from './CartItem';
-import './Cart.css';
+import CartItem from "./CartItem";
+import "./Cart.css";
 
-const Cart = () => {
-  const { 
-    cartItems, 
-    isCartOpen, 
-    setIsCartOpen, 
-    getTotalPrice, 
-    getTotalItems,
-    clearCart 
-  } = useCart();
-
-  if (!isCartOpen) return null;
-
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      setIsCartOpen(false);
-    }
-  };
-
-  const handleCheckout = () => {
-    alert(`Proceeding to checkout with ${getTotalItems()} items totaling $${getTotalPrice().toFixed(2)}`);
-    // Here you would typically integrate with a payment processor
-  };
-
+function Cart({ items, total, onUpdateQuantity, onRemove, onClear, onClose }) {
   return (
-    <div className="cart-overlay" onClick={handleOverlayClick}>
-      <div className="cart-drawer">
+    <div className="cart-overlay" onClick={onClose}>
+      <div className="cart-drawer" onClick={(e) => e.stopPropagation()}>
         <div className="cart-header">
           <h2>Shopping Cart</h2>
-          <button 
-            className="close-btn"
-            onClick={() => setIsCartOpen(false)}
-          >
-            ×
+          <button className="cart-close-button" onClick={onClose}>
+            ✕
           </button>
         </div>
 
         <div className="cart-content">
-          {cartItems.length === 0 ? (
-            <div className="empty-cart">
+          {items.length === 0 ? (
+            <div className="cart-empty">
               <p>Your cart is empty</p>
-              <button 
-                className="continue-shopping-btn"
-                onClick={() => setIsCartOpen(false)}
-              >
+              <button className="continue-shopping-button" onClick={onClose}>
                 Continue Shopping
               </button>
             </div>
           ) : (
             <>
               <div className="cart-items">
-                {cartItems.map(item => (
-                  <CartItem key={item.id} item={item} />
+                {items.map((item) => (
+                  <CartItem
+                    key={item.product.id}
+                    item={item}
+                    onUpdateQuantity={onUpdateQuantity}
+                    onRemove={onRemove}
+                  />
                 ))}
               </div>
-              
+
               <div className="cart-footer">
-                <div className="cart-summary">
-                  <div className="summary-row">
-                    <span>Items: {getTotalItems()}</span>
-                  </div>
-                  <div className="summary-row total">
-                    <span>Total: ${getTotalPrice().toFixed(2)}</span>
-                  </div>
+                <div className="cart-total">
+                  <span className="cart-total-label">Total:</span>
+                  <span className="cart-total-amount">${total.toFixed(2)}</span>
                 </div>
-                
-                <div className="cart-actions">
-                  <button 
-                    className="clear-cart-btn"
-                    onClick={clearCart}
-                  >
-                    Clear Cart
-                  </button>
-                  <button 
-                    className="checkout-btn"
-                    onClick={handleCheckout}
-                  >
-                    Checkout
-                  </button>
-                </div>
+
+                <button className="clear-cart-button" onClick={onClear}>
+                  Clear Cart
+                </button>
+
+                <button className="checkout-button" disabled>
+                  Proceed to Checkout
+                  <span className="checkout-note">(Available in Activity 9)</span>
+                </button>
               </div>
             </>
           )}
@@ -88,6 +54,6 @@ const Cart = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Cart;
