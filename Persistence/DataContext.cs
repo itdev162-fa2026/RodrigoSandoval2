@@ -13,9 +13,9 @@ namespace Persistence
 
     public DataContext()
     {
-      var folder = Environment.SpecialFolder.LocalApplicationData;
-      var path = Environment.GetFolderPath(folder);
-      DbPath = System.IO.Path.Join(path, "Blogbox.db");
+      // Use the database file in the API folder instead of LocalApplicationData
+      var currentDirectory = Directory.GetCurrentDirectory();
+      DbPath = System.IO.Path.Join(currentDirectory, "blogbox.db");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
