@@ -4,6 +4,7 @@ import ProductList from './components/ProductList';
 import ProductDetail from './components/ProductDetail';
 import Checkout from './components/Checkout/Checkout';
 import OrderSuccess from './components/Checkout/OrderSuccess';
+import CheckoutCancelled from './components/Checkout/CheckoutCancelled';
 import CartButton from './components/Cart/CartButton';
 import Cart from './components/Cart/Cart';
 import './App.css';
@@ -130,6 +131,7 @@ function App() {
               }
             />
             <Route path="/order/success" element={<OrderSuccess />} />
+            <Route path="/checkout/cancelled" element={<CheckoutCancelled />} />
           </Routes>
         </main>
 
